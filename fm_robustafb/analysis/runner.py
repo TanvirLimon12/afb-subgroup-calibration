@@ -32,9 +32,8 @@ KNOWN_CHECKPOINTS = {
 METHODS = ["erm", "group_balanced", "group_dro"]
 PRETTY = {"erm": "ERM", "group_balanced": "PGE", "group_dro": "DRO-style"}
 
-# data.root is hashed into the detector cache key. It must match the submitted run
-# exactly or none of the 9 checkpoints resolve and everything retrains.
-SUBMITTED_DATA_ROOT = "/content/Datasets/mydata/Raw_Sputum_Microscopy_Dataset"
+# NOTE: data.root is hashed into the detector checkpoint cache key, so a cached
+# detector is only reused when the dataset path matches the run that produced it.
 
 VERIFIER_EPOCHS = 5
 
@@ -102,8 +101,8 @@ def dump_run(method, seed, artifacts, data_root, tag=None, extra_overrides=(),
     from fm_robustafb.utils.seed import seed_everything, resolve_device
 
     tag = tag or f"{method}_seed{seed}"
-    cand_p = f"{artifacts}/dumps/cand_{tag}.npz"
-    rep_p = f"{artifacts}/analysis/report_{tag}.json"
+    cand_p = f"{artifacts}/predictions/cand_{tag}.npz"
+    rep_p = f"{artifacts}/runs/report_{tag}.json"
     if os.path.exists(rep_p) and not force:
         print(f"[skip] {tag} already done")
         return json.load(open(rep_p))
@@ -126,7 +125,7 @@ def dump_run(method, seed, artifacts, data_root, tag=None, extra_overrides=(),
     det_report = evaluate_detection_results(test_results, cfg)
     n_boxes = int(sum(len(r.scores) for r in test_results))
 
-    with open(f"{artifacts}/dumps/det_{tag}.pkl", "wb") as f:
+    with open(f"{artifacts}/predictions/det_{tag}.pkl", "wb") as f:
         pickle.dump({"preds": [{"boxes": r.boxes, "scores": r.scores} for r in test_results],
                      "gts": [r.gt_boxes for r in test_results],
                      "groups": [int(r.group) for r in test_results],

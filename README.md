@@ -218,18 +218,56 @@ afb-convert-yolo --dataset-root <path-to-Raw_Sputum_Microscopy_Dataset> --out-di
 # 2. run the leakage audit and derive visual-style groups
 python -m scripts.prepare_groups --config configs/raw_sputum.yaml --k 3
 
-# 3. train and evaluate one configuration
-python -m scripts.run_main --config configs/raw_sputum.yaml
+# 3. train and evaluate one reducer on one seed
+python -m scripts.run_seed --config configs/raw_sputum.yaml --reducer group_balanced --seed 0
 
-# 4. repeat across seeds
-python -m scripts.run_seeds --config configs/raw_sputum.yaml --seeds 0 1 2 3 4 5 6
-
-# 5. regenerate every table and statistic from results/
+# 4. regenerate every table and statistic from results/
 python scripts/build_report.py
 ```
 
-`scripts/build_report.py` recomputes the significance tests and LaTeX tables from
-`results/` alone, so adding a run and re-running it updates every reported number.
+Each `run_seed` invocation is one self-contained unit of work: one detector, its verifier,
+its fusion head and the resulting per-candidate predictions. Runs are independent, so seeds
+can be distributed across machines or sessions and merged afterwards by collecting their
+output files. The reported results are the union of 7 seeds x {ERM, PGE} plus 3 seeds of
+the DRO-style reducer, produced exactly this way.
+
+Reproducing the full set:
+
+```bash
+for seed in 0 1 2 3 4 5 6; do
+  for reducer in erm group_balanced; do
+    python -m scripts.run_seed --config configs/raw_sputum.yaml \
+        --reducer "$reducer" --seed "$seed"
+  done
+done
+python scripts/build_report.py
+```
+
+A completed run is skipped on re-invocation unless `--force` is passed, and trained
+detectors are cached on disk keyed by their training configuration, so an interrupted
+sweep resumes without repeating finished work.
+
+### Compute
+
+One detector is 24 epochs at batch size 2 over 1,081 full-resolution fields.
+
+| | |
+|---|---|
+| Time per detector | ~1.2 h on a T4, ~6.2 h on a P100 |
+| Peak GPU memory | ~7.6 GiB with gradient checkpointing |
+| Full sweep | 17 runs |
+
+Training runs on full fields rather than tiles, and the bounded cross-style consistency
+term adds two further forward passes per step; without checkpointing the peak footprint is
+roughly 21 GiB and will not fit a 16 GB accelerator. Checkpointing is therefore enabled by
+default (`AFB_GRAD_CHECKPOINT=0` disables it). It recomputes backbone activations in the
+backward pass instead of storing them, which is mathematically identical and leaves trained
+weights unchanged, at roughly a 40% slowdown.
+
+On accelerators older than compute capability 7.0 (for example the P100), recent PyTorch
+builds ship no compatible kernels and every CUDA operation fails with
+`no kernel image is available for execution on the device`. Pin `torch==2.4.1+cu121`
+(`torchvision==0.19.1`) there, which still carries `sm_50`-`sm_90`.
 
 ## Repository layout
 
@@ -241,7 +279,8 @@ fm_robustafb/
   robust/       ERM, present-group equalization, Group-DRO reducers
   fusion/       isotonic calibration, calibrate-then-fuse scoring head
   metrics/      detection AP, candidate calibration (C-ECE, LC-ECE), selective prediction
-  engine/       training loops, tiled inference, candidate banks, evaluation
+  engine/       training loops, tiled inference, candidate banks, evaluation,
+                activation-memory control
   analysis/     calibration analyses, bootstrap intervals, dataset statistics
   experiments/  benchmark, ablation, cross-camera, calibration, baseline studies
 configs/        YAML configurations
@@ -249,7 +288,7 @@ scripts/        CLI entry points
 results/
   runs/         per-run detection and calibration reports (JSON)
   analysis/     computed analyses: counts, bootstrap CIs, stage decomposition, k-selection
-  predictions/  per-candidate predictions (.npz) for every completed run
+  predictions/  per-candidate predictions (.npz) and per-image detections (.pkl)
   figures/      generated figures
 tests/          unit tests
 ```
