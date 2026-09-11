@@ -65,16 +65,80 @@ stage, not as a recommended component.
 
 ## Dataset
 
-Public **Raw Sputum** ZN microscopy corpus: 1,438 raw 1632x1224 fields with 11,447
-YOLO-format AFB boxes, two camera models and four recorded background colours. The median
-annotated box covers roughly 0.2% of the field, which is why fields are tiled at high
-resolution rather than downsampled.
+### What it is
 
-**Leakage audit.** Byte-identical files are flagged with SHA-256 and near-duplicates with
-a 64-bit perceptual hash at Hamming distance <= 6. Flagged pairs are merged into connected
-components and one image per component is kept under a train > validation > test priority,
-so evaluation-side copies are removed while the training corpus is preserved. This removes
-**106 images**, leaving 1,332 fields and 10,465 boxes.
+**A Comprehensive Raw Dataset of Ziehl-Neelsen-Stained Sputum Smear Microscopy Images for
+*Mycobacterium tuberculosis* Detection** — Yuniarti, Fatichah, Sigit, Arifin and da Costa,
+*Data in Brief*, vol. 67, p. 112908, 2026.
+
+Ziehl-Neelsen (ZN) staining is the standard low-cost test for pulmonary tuberculosis: a
+sputum smear is stained so that acid-fast bacilli (AFB) retain a red-pink carbolfuchsin
+dye against a counterstained background, and a technician scans the slide under a
+microscope counting bacilli. It remains a primary screening tool in resource-constrained
+settings, and manual reading is slow, fatiguing and variable between readers — which is
+what motivates automating bacillus localisation.
+
+The corpus is deliberately **raw**: whole microscope fields as captured, with no cropping,
+colour normalisation, focus filtering or curation. That is what makes it suitable for
+studying subgroup reliability, because the acquisition variation is still present in the
+data rather than pre-processed away.
+
+### Contents
+
+| Property | Value |
+|---|---|
+| Fields | 1,438 (1,332 after the leakage audit) |
+| Resolution | 1632 x 1224 |
+| Annotations | 11,447 AFB bounding boxes in YOLO format (10,465 after the audit) |
+| Median box size | ~3,973 px², about **0.20%** of a field |
+| Camera systems | 2 — Hayear (720), Optilab (718) |
+| Background colours | 4 — Yellowish (687), Purplish/Pinkish (570), Bluish (125), Greenish (56) |
+| Class | single class (bacillus) |
+
+Targets are extremely small relative to the field, which is why fields are tiled at high
+resolution for detection rather than downsampled.
+
+### Acquisition variation
+
+The recorded metadata crosses camera against background colour almost evenly, so the two
+axes are close to independent:
+
+| | Bluish | Greenish | Purplish/Pinkish | Yellowish |
+|---|---|---|---|---|
+| Hayear | 60 | 28 | 287 | 345 |
+| Optilab | 65 | 28 | 283 | 342 |
+
+Background colour is severely imbalanced (Greenish and Bluish together are 13% of the
+corpus) while camera is balanced. This matters: the calibration failure reported above
+tracks the **colour** axis and not the camera axis.
+
+### Obtaining it
+
+The dataset is published with the *Data in Brief* article above and is not redistributed
+here. Download it, then point the converter at the extracted folder:
+
+```bash
+afb-convert-yolo --dataset-root <path-to-Raw_Sputum_Microscopy_Dataset> --out-dir data/afb
+```
+
+The expected layout is `images/{train,val,test}/*.jpg` with matching
+`labels/{train,val,test}/*.txt` in YOLO format. An optional
+`metadata.csv` with columns `Image_ID, Data_Split, Background_Color, Camera_System`
+enables the metadata-axis replication analyses; without it the unsupervised style
+grouping still works.
+
+### Leakage audit
+
+The provider splits contain cross-split duplicates, which inflate detection scores if a
+field appears in both training and test. Byte-identical files are flagged with SHA-256 and
+near-duplicates with a 64-bit perceptual hash at Hamming distance <= 6, which catches
+recompressed or reformatted copies of the same field. Flagged pairs are merged into
+connected components and one image per component is kept under a train > validation > test
+priority, so evaluation-side copies are removed while the training corpus is preserved.
+
+This removes **106 images**, leaving 1,332 fields and 10,465 boxes. Near-duplicate flags
+are generated automatically and not exhaustively hand-verified, so these are removed as
+*potential* near-duplicates rather than proven ones.
 
 | Split | Images | Boxes | Share | style0 / style1 / style2 |
 |---|---|---|---|---|
@@ -82,11 +146,17 @@ so evaluation-side copies are removed while the training corpus is preserved. Th
 | val | 122 | 882 | 9.2% | 34 / 79 / 9 |
 | test | 129 | 1084 | 9.7% | 40 / 82 / 7 |
 
-The style mix is stable across splits (largest share difference 3.4 percentage points).
-The evaluation sets are small in absolute terms: the minimum detectable difference in
-per-candidate correctness between the largest and smallest style groups is **0.447** at
-80% power, so the study is powered only for large subgroup effects. Bootstrap intervals
-are reported with every subgroup estimate.
+The style mix is stable across splits (largest share difference 3.4 percentage points), so
+the evaluation sets are representative of the corpus. They are small in absolute terms: the
+minimum detectable difference in per-candidate correctness between the largest and smallest
+style groups is **0.447** at 80% power, so the study is powered only for large subgroup
+effects. Bootstrap intervals are reported with every subgroup estimate.
+
+### A note on scope
+
+This is **AFB / bacillus-morphology detection, not species-level tuberculosis diagnosis**.
+ZN morphology alone cannot confirm *M. tuberculosis*, and nothing here should be read as a
+diagnostic claim.
 
 ### Visual-style groups
 
