@@ -1,12 +1,59 @@
 # FM-RobustAFB
 
-Subgroup calibration and worst-group detection accuracy for acid-fast bacilli (AFB)
-detection in Ziehl-Neelsen (ZN) sputum-smear microscopy.
+### Towards Trustworthy Tuberculosis Detection: Subgroup Calibration of Object Detectors in Sputum-Smear Microscopy
 
-Pooled detection and calibration metrics can look healthy while a small, visually
-distinct subgroup of images is badly miscalibrated. This repository contains a
-leakage-audited pipeline that measures both at once: worst-group average precision and
-subgroup-conditioned candidate calibration, over seven independently trained seeds.
+Swagotam Malakar, Tanvir Ahmed, Abhijit Kumar Ghosh, Mohammad Zavid Parvez,
+Prabal Barua, Subrata Chakraborty
+
+---
+
+## Overview
+
+Automated detection of acid-fast bacilli (AFB) in Ziehl-Neelsen (ZN) sputum-smear
+microscopy is normally judged by pooled accuracy over a whole test set. That single number
+cannot tell you whether the detector's *confidence* stays trustworthy across the variation
+a real slide collection contains — different microscopes, staining densities, focus and
+colour casts. A model can post acceptable pooled accuracy while its confidence scores are
+systematically unreliable on a smaller, visually distinct group of images.
+
+That matters for deployment. If a screening tool is going to defer uncertain fields to a
+human, its confidence has to mean the same thing on every kind of slide it will meet. A
+pooled calibration figure cannot establish that.
+
+This project measures the two things together — **worst-group detection accuracy** and
+**subgroup-conditioned candidate calibration** — on a leakage-audited public ZN corpus,
+across seven independently trained seeds. It asks three questions:
+
+1. Which group-robust training objective gives the best worst-group detection accuracy?
+2. Does subgroup-conditioned calibration stay reliable once visual-style information is
+   given to the scoring model?
+3. Does a foundation-model candidate verifier add a stable, useful confidence signal?
+
+The answers are, in order: present-group equalization, on every seed; **no** — the
+smallest visual-style group remains the least calibrated even when the fusion model is
+handed the group label; and **no** — at matched recall the verifier changes false-positive
+counts by about a percent.
+
+Two deliberate design choices make those answers harder to dismiss. The corpus is audited
+for cross-split duplicates first, because leakage inflates exactly the detection scores
+this study depends on. And the fusion model is given the subgroup indicator explicitly, so
+any residual calibration gap survives a model that was free to fit a group-specific
+offset — a more conservative test than withholding the label.
+
+### Pipeline
+
+```mermaid
+flowchart LR
+    A[Raw ZN field<br/>1632 x 1224] -->|tile 640x640| B[Tiled detector<br/>FCOS + ResNet-50<br/>ERM / PGE / DRO-style]
+    B -->|candidate crops| C[Verifier<br/>frozen DINOv2 ViT-B/14<br/>+ LoRA rank 8]
+    B -->|detector logit| D[Isotonic calibration<br/>per signal]
+    C -->|verifier logit| D
+    D -->|p_det, p_ver| E[Fuse<br/>logistic on p_det, p_ver,<br/>JS divergence, group id]
+    E --> F[Audit<br/>worst-group AP +<br/>per-group C-ECE]
+```
+
+The detector and verifier are trained separately: the verifier consumes cropped images
+rather than detector features, so no gradient flows back into the detector.
 
 ## Headline results
 
@@ -19,12 +66,14 @@ AP in all 7 seeds** (exact sign test p = 0.0078, Wilcoxon p = 0.0078).
 | PGE | 7 | 0.42, 0.33, 0.13, 0.41, 0.54, 0.25, 0.63 | 0.39 ± 0.16 |
 | DRO-style | 3 | 0.00†, 0.35, 0.00† | 0.12 ± 0.16 |
 
+![PGE versus ERM on every seed](results/figures/pge_vs_erm_paired.png)
+
 † collapsed to an all-background solution (0-4 boxes over the whole test set).
 PGE never collapsed; ERM reached zero worst-group AP on 3 of 7 seeds. Excluding the two
 collapsed ERM runs the comparison is still 5/5 (p = 0.031), so the conclusion does not
 depend on how collapsed runs are scored.
 
-**Pooled calibration hides a subgroup failure.** Candidate expected calibration error
+**The pooled figure does not describe every subgroup.** Candidate expected calibration error
 (C-ECE) per visual-style group, with the evidence behind each estimate:
 
 | Group | Images | Candidates | Bins occupied | C-ECE | 95% CI |
@@ -34,9 +83,12 @@ depend on how collapsed runs are scored.
 | style 2 | 5 | 10 | 5/15 | 0.42 | [0.31, 0.61] |
 | pooled | 108 | 752 | — | 0.09 | [0.06, 0.13] |
 
+![Subgroup calibration and stage decomposition](results/figures/subgroup_calibration.png)
+
 Intervals are percentile bootstrap over test images (2000 resamples), which respects
 within-image correlation between candidates. *Images* counts only those contributing at
-least one candidate above the detector threshold.
+least one candidate above the detector threshold — note how few candidates support the
+style-2 estimate, and read it with its interval rather than as a point value.
 
 **The gap originates in the detector, not the calibrator.** Stage-wise candidate ECE
 after per-signal isotonic calibration:
@@ -152,6 +204,8 @@ minimum detectable difference in per-candidate correctness between the largest a
 style groups is **0.447** at 80% power, so the study is powered only for large subgroup
 effects. Bootstrap intervals are reported with every subgroup estimate.
 
+![Dataset composition](results/figures/dataset_composition.png)
+
 ### A note on scope
 
 This is **AFB / bacillus-morphology detection, not species-level tuberculosis diagnosis**.
@@ -172,6 +226,8 @@ features and validation/test images are assigned to the nearest cluster.
 | 3 | 0.951 | 74 | 0.312 |
 | 4 | 0.717 | 4 | 0.296 |
 | 5 | 0.466 | 4 | 0.225 |
+
+![Cluster count selection](results/figures/cluster_selection.png)
 
 k=3 is the largest cluster count that is both reproducible under resampling (ARI >= 0.9)
 and free of degenerate clusters. The partition is not an artefact of the feature space:
@@ -299,7 +355,8 @@ labels, group ids, calibrated detector and verifier probabilities, fused scores,
 image ids. Every table in this README can be recomputed from them without a GPU:
 
 ```bash
-python scripts/build_report.py
+python scripts/build_report.py   # tables and statistics
+python scripts/make_figures.py   # every figure in results/figures
 ```
 
 ## Metrics
