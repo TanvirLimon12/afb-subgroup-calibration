@@ -1,0 +1,53 @@
+{
+  "nominal_test_images": 7,
+  "per_seed": [
+    {
+      "tag": "group_balanced_seed0",
+      "n_candidates": 14,
+      "n_images_contributing": 6,
+      "images_with_zero_candidates": [
+        56
+      ],
+      "candidates_per_image": {
+        "73": 3,
+        "86": 2,
+        "89": 3,
+        "121": 2,
+        "126": 3,
+        "135": 1
+      }
+    },
+    {
+      "tag": "group_balanced_seed1",
+      "n_candidates": 12,
+      "n_images_contributing": 6,
+      "images_with_zero_candidates": [
+        56
+      ],
+      "candidates_per_image": {
+        "73": 3,
+        "86": 2,
+        "89": 2,
+        "121": 2,
+        "126": 2,
+        "135": 1
+      }
+    },
+    {
+      "tag": "group_balanced_seed2",
+      "n_candidates": 6,
+      "n_images_contributing": 5,
+      "images_with_zero_candidates": [
+        56,
+        135
+      ],
+      "candidates_per_image": {
+        "73": 2,
+        "86": 1,
+        "89": 1,
+        "121": 1,
+        "126": 1
+      }
+    }
+  ]
+}

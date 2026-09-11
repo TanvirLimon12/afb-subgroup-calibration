@@ -1,0 +1,82 @@
+# ZNSM-iDB (Shah et al., 2017; P05) - bright-field microscopes.
+#
+# Preparation (full corpus, deduplicated 2,763 images across 72 zips):
+#   python -m scripts.ingest_znsm --images-root Datasets/ZNSM-iDB/images_full \
+#          --out-dir data/znsm
+#   # for training with backgrounds + Without_bacilli hard-negatives:
+#   python -m scripts.ingest_znsm --images-root Datasets/ZNSM-iDB/images_full \
+#          --out-dir data/znsm_full --include-backgrounds
+#
+# camera = microscope id. Annotation recovery is reliable for micro1 (Mannual_Seg)
+# and micro2 (Mannual) where bacilli are marked with clean drawn shapes
+# (ovals/rectangles). micro3 Mannual uses heavy filled-mask annotation (~35% ink)
+# whose individual bacilli cannot be cleanly recovered as boxes, so micro3 is
+# excluded from the annotated detection set (it is still available as background
+# in the --include-backgrounds mode). The cross-sensor axis is therefore
+# micro1 (800x600) vs micro2 (1280x1024 / 2592x1944) — two clean microscopes,
+# reported as annotation recovery, not original ground truth.
+#
+# Use this config for: cross-camera testing (Experiment 2), leave-one-microscope
+# folds, and as an external validation corpus for a detector trained on another
+# set (train there, test.json here).
+
+seed: 0
+device: auto
+output_dir: runs/znsm_idb
+
+data:
+  root: Datasets/ZNSM-iDB/images_full
+  ann_train: data/znsm/train.json
+  ann_val: data/znsm/val.json
+  ann_test: data/znsm/test.json
+  cameras: [micro1, micro2]
+  backgrounds: [zn, zn_empty]
+  num_classes: 1
+  tile_size: 640
+  tile_overlap: 0.18
+  normalize_stain: false
+
+detector:
+  backbone: resnet50
+  pretrained: true
+  fpn_min_level: 2          # micro1 fields are small (800x600); keep P2 for tiny rods
+  fpn_max_level: 5
+  fpn_channels: 256
+  num_classes: 1
+  cross_tile_nms_iou: 0.5
+
+verifier:
+  backbone: dinov2_vitb14_reg
+  offline_stub: false
+  crop_context: 2.5
+  crop_size: 224
+  fuse_layers: [6, 9, 12]
+  adaptation: lora
+  head: prototype
+
+robust:
+  method: group_dro          # 3 real camera groups; DRO-vs-balanced is meaningful here
+  group_dro:
+    step_size: 0.01
+    l2: 0.0005
+  consistency:
+    enabled: true
+    weight: 0.5
+
+fusion:
+  calibration: isotonic     # ECCV 2024 (2405.20459): post-hoc isotonic > temperature scaling
+  model: logistic
+  use_group_feature: true
+
+train:
+  epochs: 40
+  batch_size: 2
+  lr: 0.001
+  weight_decay: 0.0001
+  num_workers: 4
+
+eval:
+  ap_iou: [0.5, 0.75]
+  dece_bins: 15
+  coverage_points: [1.0, 0.95, 0.9, 0.8]
+  seeds: [0, 1, 2]

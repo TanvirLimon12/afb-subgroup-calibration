@@ -1,0 +1,86 @@
+{
+  "training": {
+    "epochs": 24,
+    "batch_size": 2,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "optimizer": "AdamW",
+    "grad_clip_norm": 5.0,
+    "amp": true,
+    "detector": {
+      "backbone": "resnet50",
+      "pretrained": true,
+      "head": "anchor-free FCOS-style",
+      "fpn_levels": "P3-P5",
+      "score_thresh": 0.05,
+      "cross_tile_nms_iou": 0.5
+    },
+    "tiling": {
+      "max_side": 1600,
+      "tile_size": 640,
+      "tile_overlap": 0.18
+    },
+    "consistency_regulariser": {
+      "enabled": true,
+      "weight": 0.5,
+      "form": "KL on class probabilities + L1 on box regression between two lightly augmented views",
+      "bounds": {
+        "max_hue": 0.03,
+        "max_sat": 0.2,
+        "max_blur": 1.5
+      }
+    }
+  },
+  "verifier": {
+    "backbone": "dinov2_vitb14_reg",
+    "backbone_frozen": true,
+    "adaptation": "lora",
+    "lora_rank": 8,
+    "lora_targets": "attention and MLP projection matrices of the ViT blocks",
+    "fuse_layers": [
+      6,
+      9,
+      12
+    ],
+    "pooling": "mean patch embedding concatenated with the CLS token, learned layer weights",
+    "head": "prototype",
+    "prototypes_per_class": 8,
+    "crop_context": 2.5,
+    "crop_size": 224,
+    "supervision": "candidate crops from the development (provider validation) split only. Each detector proposal on that split is labelled positive when its best IoU with any ground-truth box in the same image is >= 0.5, negative otherwise; ground-truth boxes are additionally injected as positives when building the development bank.",
+    "epochs": 5,
+    "gradient_flow_to_detector": false,
+    "gradient_flow_note": "the verifier is trained after the detector is frozen and consumes cropped images, not detector features, so no gradient reaches the detector; the two stages never appear in a single backward pass"
+  },
+  "fusion": {
+    "per_signal_calibration": "isotonic",
+    "fitted_on": "development split candidates only, never the test split",
+    "fusion_model": "logistic",
+    "features": [
+      "calibrated detector probability",
+      "calibrated verifier probability",
+      "Jensen-Shannon divergence between the two",
+      "one-hot style-group indicator"
+    ],
+    "use_group_feature": true,
+    "note": "the group indicator is given to the fusion model deliberately, so any residual per-group calibration gap survives a model that was free to fit a group-specific offset"
+  },
+  "code_locations": {
+    "build_candidate_bank": {
+      "file": "/Users/shorna/Projects/FM-RobustAFB/fm_robustafb/engine/train_verifier.py",
+      "lines": 58
+    },
+    "train_verifier": {
+      "file": "/Users/shorna/Projects/FM-RobustAFB/fm_robustafb/engine/train_verifier.py",
+      "lines": 96
+    },
+    "fit_fusion": {
+      "file": "/Users/shorna/Projects/FM-RobustAFB/fm_robustafb/engine/fusion_stage.py",
+      "lines": 19
+    },
+    "apply_fusion": {
+      "file": "/Users/shorna/Projects/FM-RobustAFB/fm_robustafb/engine/fusion_stage.py",
+      "lines": 29
+    }
+  }
+}

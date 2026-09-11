@@ -1,0 +1,97 @@
+# FM-RobustAFB reference configuration.
+# Scope: AFB / bacillus-morphology detection and verification. NOT species-level
+# M. tuberculosis identification. See README scope disclaimer.
+
+seed: 0
+device: auto          # auto | cpu | cuda | mps
+output_dir: runs/default
+
+data:
+  root: data/afb
+  ann_train: data/afb/train.json
+  ann_val: data/afb/val.json
+  ann_test: data/afb/test.json
+  cameras: [hayear, optilab]
+  backgrounds: [b0, b1, b2, b3]
+  num_classes: 1
+  # Tiling. No downsampling before tiling; AFB can be a few pixels wide.
+  tile_size: 640
+  tile_overlap: 0.18
+  normalize_stain: false            # deliberately unnormalized (P46 rationale)
+
+audit:
+  phash_hamming_max: 6              # near-duplicate perceptual-hash threshold
+  embed_cosine_min: 0.98           # DINO-embedding near-duplicate threshold
+
+detector:
+  backbone: resnet18               # torchvision FPN backbone
+  pretrained: false                # offline-safe default; set true to pull weights
+  fpn_min_level: 2                 # include P2 (stride 4) for tiny objects
+  fpn_max_level: 5
+  fpn_channels: 128
+  head_convs: 2
+  num_classes: 1
+  score_thresh: 0.05
+  nms_iou: 0.5
+  max_det_per_tile: 300
+  cross_tile_nms_iou: 0.5
+  assigner:
+    center_radius: 2.5
+    candidate_topk: 10
+  loss:
+    cls_weight: 1.0
+    box_weight: 2.0
+    ctr_weight: 1.0
+
+verifier:
+  backbone: dinov2_vitb14_reg      # torch.hub id; register-token default (P08)
+  offline_stub: true               # use local ViT stub when hub is unavailable
+  crop_context: 2.5                # box expansion factor (context ring)
+  crop_size: 224                   # >= 224 so bacillus spans multiple 14px patches
+  fuse_layers: [6, 9, 12]          # intermediate-layer fusion
+  adaptation: lora                 # lora | bitfit | frozen
+  lora_rank: 8
+  prototypes_per_class: 8          # multi-prototype, not a single global mean
+  head: linear                     # linear | prototype
+  hard_negative_ratio: 1.0
+
+segmentation:                       # Stage 2a, gated by pilot; off by default
+  enabled: false
+  models: [micro_sam, cellsam]
+  pilot_dice_min: 0.6
+  consensus_dice_min: 0.7
+  containment_min: 0.7
+  elongation_min: 2.0
+
+robust:
+  method: group_balanced           # erm | group_balanced | group_dro
+  group_dro:
+    step_size: 0.01                # exponentiated-gradient group weight step
+    l2: 0.0005                     # regularization correction (Sagawa fix)
+  consistency:
+    enabled: true                  # bounded cross-style consistency regularizer
+    weight: 0.5
+    max_hue: 0.03                  # bounded; do not destroy stain signal
+    max_sat: 0.2
+    max_blur: 1.5
+
+fusion:
+  calibration: temperature         # temperature | isotonic ; fit on val only
+  model: logistic                  # logistic | mlp
+  use_group_feature: true
+
+train:
+  epochs: 12
+  batch_size: 4
+  lr: 0.001
+  weight_decay: 0.0001
+  warmup_iters: 200
+  num_workers: 4
+  amp: true
+
+eval:
+  ap_iou: [0.5, 0.75]
+  dece_bins: 15
+  dece_binning: confidence         # confidence-only for small datasets
+  coverage_points: [1.0, 0.95, 0.9, 0.8]
+  seeds: [0, 1, 2]

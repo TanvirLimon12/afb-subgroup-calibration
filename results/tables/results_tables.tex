@@ -1,0 +1,73 @@
+\begin{table}[t]
+\centering
+\small
+\caption{Subgroup calibration with the candidate counts and bin occupancy behind each estimate. \emph{Images} counts only those contributing at least one candidate above the detector threshold, which is fewer than the nominal per-group test size. Intervals are percentile bootstrap over test images (2000 resamples), which accounts for within-image correlation between candidates.}
+\label{tab:subgroup_counts}
+\begin{tabular}{lrrrrr}
+\toprule
+Group & Images & Candidates & Occupied bins & C-ECE & 95\% CI \\
+\midrule
+style 0 & 31 & 221 & 9/15 & 0.15 & [0.09, 0.24] \\
+style 1 & 72 & 520 & 9/15 & 0.07 & [0.04, 0.12] \\
+style 2 & 5 & 10 & 5/15 & 0.42 & [0.31, 0.61] \\
+\midrule
+pooled & 108 & 752 & -- & 0.09 & [0.06, 0.13] \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[t]
+\centering
+\small
+\caption{Stage-wise candidate ECE after per-signal isotonic calibration. The subgroup gap is already present in the detector and is not reduced by group-conditioned fusion, which rules out the calibrator as its origin.}
+\label{tab:stage_decomp}
+\begin{tabular}{lrrr}
+\toprule
+Group & Detector & Verifier & Fused \\
+\midrule
+style 0 & 0.094 & 0.102 & 0.148 \\
+style 1 & 0.097 & 0.077 & 0.069 \\
+style 2 & 0.299 & 0.371 & 0.423 \\
+pooled & 0.087 & 0.086 & 0.086 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[t]
+\centering
+\small
+\caption{Worst-group AP at IoU 0.5 by training reducer. $\dagger$ marks runs that collapsed to an all-background solution; those detectors emitted 1--4 boxes over the entire test set, so calibration is undefined for them.}
+\label{tab:reducers}
+\begin{tabular}{llll}
+\toprule
+Method & $n$ & Per-seed worst-group AP$_{50}$ & Mean $\pm$ SD \\
+\midrule
+ERM & 7 & 0.40, 0.15, 0.04, 0.07, 0.00$^{\dagger}$, 0.00, 0.00$^{\dagger}$ & 0.09 $\pm$ 0.13 \\
+PGE & 7 & 0.42, 0.33, 0.13, 0.41, 0.54, 0.25, 0.63 & 0.39 $\pm$ 0.16 \\
+DRO-style (submitted) & 3 & 0.00$^{\dagger}$, 0.35, 0.00$^{\dagger}$ & 0.12 $\pm$ 0.16 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[t]
+\centering
+\small
+\caption{Cluster-count selection on training-split style features. $k=3$ is the largest value that is both reproducible under resampling (ARI $\geq 0.9$) and free of degenerate clusters.}
+\label{tab:kselect}
+\begin{tabular}{lrrrr}
+\toprule
+$k$ & Inertia & Silhouette & Smallest cluster & Bootstrap ARI \\
+\midrule
+2 & 5273 & 0.592 & 74 & 1.00 $\pm$ 0.00 \\
+3 & 4037 & 0.312 & 74 & 0.95 $\pm$ 0.07 \\
+4 & 3461 & 0.296 & 4 & 0.72 $\pm$ 0.26 \\
+5 & 3025 & 0.225 & 4 & 0.47 $\pm$ 0.27 \\
+6 & 2655 & 0.240 & 4 & 0.83 $\pm$ 0.22 \\
+7 & 2349 & 0.241 & 4 & 0.86 $\pm$ 0.16 \\
+8 & 2101 & 0.242 & 4 & 0.86 $\pm$ 0.13 \\
+\bottomrule
+\end{tabular}
+\end{table}

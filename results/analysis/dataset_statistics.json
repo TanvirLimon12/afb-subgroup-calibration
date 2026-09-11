@@ -1,0 +1,174 @@
+{
+  "composition": {
+    "splits": {
+      "train": {
+        "images": 1081,
+        "boxes": 8499,
+        "group_images": {
+          "style1": 709,
+          "style0": 298,
+          "style2": 74
+        },
+        "group_image_pct": {
+          "style1": 65.6,
+          "style0": 27.6,
+          "style2": 6.8
+        },
+        "group_boxes": {
+          "style1": 5845,
+          "style0": 2504,
+          "style2": 150
+        },
+        "boxes_per_image": {
+          "mean": 7.862164662349676,
+          "median": 6.0,
+          "min": 0,
+          "max": 45,
+          "images_with_zero_boxes": 30
+        },
+        "metadata_background": {
+          "Purplish/Pinkish": 422,
+          "Yellowish": 475,
+          "Bluish": 93,
+          "Greenish": 30
+        },
+        "metadata_camera": {
+          "Hayear": 512,
+          "Optilab": 508
+        },
+        "metadata_missing": 61
+      },
+      "val": {
+        "images": 122,
+        "boxes": 882,
+        "group_images": {
+          "style1": 79,
+          "style0": 34,
+          "style2": 9
+        },
+        "group_image_pct": {
+          "style1": 64.8,
+          "style0": 27.9,
+          "style2": 7.4
+        },
+        "group_boxes": {
+          "style1": 611,
+          "style0": 253,
+          "style2": 18
+        },
+        "boxes_per_image": {
+          "mean": 7.229508196721311,
+          "median": 6.0,
+          "min": 0,
+          "max": 25,
+          "images_with_zero_boxes": 5
+        },
+        "metadata_background": {
+          "Yellowish": 53,
+          "Purplish/Pinkish": 53,
+          "Greenish": 2,
+          "Bluish": 11
+        },
+        "metadata_camera": {
+          "Hayear": 58,
+          "Optilab": 61
+        },
+        "metadata_missing": 3
+      },
+      "test": {
+        "images": 129,
+        "boxes": 1084,
+        "group_images": {
+          "style0": 40,
+          "style1": 82,
+          "style2": 7
+        },
+        "group_image_pct": {
+          "style0": 31.0,
+          "style1": 63.6,
+          "style2": 5.4
+        },
+        "group_boxes": {
+          "style0": 318,
+          "style1": 750,
+          "style2": 16
+        },
+        "boxes_per_image": {
+          "mean": 8.4031007751938,
+          "median": 7.0,
+          "min": 0,
+          "max": 36,
+          "images_with_zero_boxes": 5
+        },
+        "metadata_background": {
+          "Purplish/Pinkish": 52,
+          "Greenish": 6,
+          "Yellowish": 59,
+          "Bluish": 12
+        },
+        "metadata_camera": {
+          "Hayear": 67,
+          "Optilab": 62
+        },
+        "metadata_missing": 0
+      }
+    },
+    "totals": {
+      "images": 1332,
+      "boxes": 10465,
+      "split_pct": {
+        "train": 81.2,
+        "val": 9.2,
+        "test": 9.7
+      }
+    }
+  },
+  "drift": {
+    "pct_by_split": {
+      "style0": {
+        "train": 27.6,
+        "val": 27.9,
+        "test": 31.0
+      },
+      "style1": {
+        "train": 65.6,
+        "val": 64.8,
+        "test": 63.6
+      },
+      "style2": {
+        "train": 6.8,
+        "val": 7.4,
+        "test": 5.4
+      }
+    },
+    "max_pct_drift": {
+      "style0": 3.4,
+      "style1": 2.0,
+      "style2": 2.0
+    }
+  },
+  "power": {
+    "nominal": {
+      "train": 1081,
+      "val": 122,
+      "test": 129
+    },
+    "minority_test_images": 7,
+    "minority_dev_images": 9,
+    "candidate_level": {
+      "style 0": 221,
+      "style 1": 520,
+      "style 2": 10
+    },
+    "mde_candidate_correctness": 0.447
+  },
+  "balancing": {
+    "robust.method": "group_balanced",
+    "loss_side_balancing": "present-group equalization: per-example losses are averaged within each group present in the batch, then those group means are averaged, so an under-represented group present in a batch gets equal weight to a common one",
+    "sampler": "GroupBalancedSampler (inverse group frequency) is used only when robust.method == 'group_balanced'; ERM and Group-DRO use a plain shuffled loader",
+    "class_weights": "none - the detector loss applies no per-class weighting",
+    "oversampling": "none - no minority image duplication or synthetic augmentation",
+    "batch_size": 4,
+    "caveat": "with batch_size 2 and three groups, most batches contain one or two groups, so present-group equalization equalizes over whichever groups co-occur rather than over all three at every step"
+  }
+}

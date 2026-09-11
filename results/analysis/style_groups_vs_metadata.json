@@ -1,0 +1,21 @@
+{
+  "purity": {
+    "0": {
+      "dominant": "Yellowish",
+      "purity": 0.5812274368231047,
+      "n": 277
+    },
+    "1": {
+      "dominant": "Purplish/Pinkish",
+      "purity": 0.5186846038863976,
+      "n": 669
+    },
+    "2": {
+      "dominant": "Bluish",
+      "purity": 1.0,
+      "n": 74
+    }
+  },
+  "ari_bg": 0.17715699619773947,
+  "ari_cam": 4.761939139228817e-05
+}

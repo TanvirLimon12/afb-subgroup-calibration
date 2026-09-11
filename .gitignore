@@ -1,0 +1,21 @@
+# data and weights are not distributed with the code
+Datasets/
+data/
+runs/
+*.pt
+*.pth
+*.zip
+
+# build / env
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+
+# os
+.DS_Store

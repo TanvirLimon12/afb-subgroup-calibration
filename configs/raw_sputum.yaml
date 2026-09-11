@@ -1,0 +1,81 @@
+# Real Raw Sputum Microscopy corpus (YOLO -> COCO via scripts/convert_yolo.py).
+#
+# Preparation order:
+#   afb-convert-yolo --dataset-root Datasets/Raw_Sputum_Microscopy_Dataset --out-dir data/afb
+#   python -m scripts.prepare_groups --config configs/raw_sputum.yaml --k 3
+#
+# Filenames carry no camera / slide identity. prepare_groups (a) removes 106
+# cross-split duplicate images that would otherwise leak train into val/test and
+# (b) partitions images by unsupervised staining-style clusters (style0..style2)
+# so worst-group AP and the Group-DRO-vs-balanced comparison are measurable.
+# These are STYLE groups, reported as an unsupervised partition, never as true
+# device/patient grouping. Supply a file_name,camera,background CSV to
+# afb-convert-yolo --metadata-csv and switch cameras/backgrounds once real
+# identifiers arrive; results remain image-level validation until then.
+#
+# Stage-1a audit on the training split: median box 64x66 px in 1632x1224 fields,
+# ~0 fraction below the P3 stride (8 px) -> P2 is NOT justified, so fpn_min_level
+# is 3. Re-run afb-audit and revisit if a metadata split changes the statistics.
+
+seed: 0
+device: auto
+output_dir: runs/raw_sputum
+
+data:
+  root: Datasets/Raw_Sputum_Microscopy_Dataset
+  ann_train: data/afb/train.json
+  ann_val: data/afb/val.json
+  ann_test: data/afb/test.json
+  cameras: [unknown]
+  backgrounds: [style0, style1, style2]
+  num_classes: 1
+  tile_size: 640
+  tile_overlap: 0.18
+  normalize_stain: false
+
+detector:
+  backbone: resnet50
+  pretrained: true
+  fpn_min_level: 3        # audit: median box 64px >> P3 stride; P2 not justified
+  fpn_max_level: 5
+  fpn_channels: 256
+  num_classes: 1
+  score_thresh: 0.05
+  cross_tile_nms_iou: 0.5
+
+verifier:
+  backbone: dinov2_vitb14_reg
+  offline_stub: false     # pull the real register-token checkpoint via torch.hub
+  crop_context: 2.5
+  crop_size: 224
+  fuse_layers: [6, 9, 12]
+  adaptation: lora
+  lora_rank: 8
+  head: prototype
+  prototypes_per_class: 8
+
+robust:
+  method: group_balanced  # single group here; becomes meaningful with metadata
+  consistency:
+    enabled: true
+    weight: 0.5
+
+fusion:
+  calibration: isotonic     # ECCV 2024 (2405.20459): post-hoc isotonic > temperature scaling
+  model: logistic
+  use_group_feature: true   # style groups present; fusion conditions on group id
+
+train:
+  epochs: 24
+  batch_size: 4
+  lr: 0.001
+  weight_decay: 0.0001
+  num_workers: 4
+  amp: true
+
+eval:
+  ap_iou: [0.5, 0.75]
+  dece_bins: 15
+  dece_binning: confidence
+  coverage_points: [1.0, 0.95, 0.9, 0.8]
+  seeds: [0, 1, 2]
