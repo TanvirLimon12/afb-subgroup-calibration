@@ -52,12 +52,12 @@ def table_reducers(R):
             per.append((s, float(wg(r) or 0.0), bool(r.get("collapsed"))))
         if per:
             tab[m] = per
-    for m in ["dro_fixed"]:
+    for m in ["group_cycling"]:
         per = [(int(k.rsplit("seed", 1)[1]), float(wg(v) or 0.0), bool(v.get("collapsed")))
-               for k, v in R.items() if k.startswith("dro_fixed")]
+               for k, v in R.items() if k.startswith("group_cycling")]
         if per:
             tab[m] = sorted(per)
-            label[m] = "DRO-style (cycling + accumulation)"
+            label[m] = "DRO-style (group cycling + accumulation)"
     lines = []
     for m, per in tab.items():
         vals = np.array([v for _, v, _ in per])
@@ -198,7 +198,7 @@ def main():
         print(f"   mean diff {sig['mean_diff']:+.3f}  95% CI "
               f"[{sig['ci95'][0]:+.3f}, {sig['ci95'][1]:+.3f}]"
               f"{'  (excludes zero)' if sig['ci95'][0] > 0 else ''}")
-        json.dump(sig, open(os.path.join(A, "significance_final.json"), "w"), indent=2)
+        json.dump(sig, open(os.path.join(A, "significance_pge_vs_erm.json"), "w"), indent=2)
 
     print(f"\n-> tables/results_tables.tex ({len(parts)} blocks)")
     print("=" * 74)

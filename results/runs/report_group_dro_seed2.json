@@ -1,0 +1,25 @@
+{
+  "detection": {
+    "AP50": 0.0,
+    "AP75": 0.0,
+    "AP50:95": 0.0,
+    "AR_small": 0.0,
+    "LRP50": 1.0,
+    "LaECE": 0.05149189010262489,
+    "count_MAE": 8.4031007751938,
+    "count_corr": NaN,
+    "per_group_AP50": {
+      "0": 0.0,
+      "1": 0.0,
+      "2": 0.0
+    },
+    "worst_group_AP50": 0.0,
+    "mean_AP50": 0.0,
+    "group_gap_AP50": 0.0
+  },
+  "calibration": null,
+  "collapsed": true,
+  "reason": "validation candidates are single-class or empty; the detector produced no usable positives, so calibration and fusion are undefined",
+  "n_test_boxes": 1,
+  "n_val_candidates": 3
+}

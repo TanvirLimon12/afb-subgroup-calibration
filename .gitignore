@@ -1,7 +1,9 @@
-# data and weights are not distributed with the code
-Datasets/
-data/
-runs/
+# Corpus and trained weights are not distributed with the code.
+# Leading slashes anchor these to the repository root so they cannot match
+# fm_robustafb/data/ or results/runs/.
+/Datasets/
+/data/
+/runs/
 *.pt
 *.pth
 *.zip
@@ -14,8 +16,8 @@ venv/
 *.egg-info/
 .pytest_cache/
 .ruff_cache/
-build/
-dist/
+/build/
+/dist/
 
 # os
 .DS_Store
