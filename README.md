@@ -226,10 +226,10 @@ python scripts/build_report.py
 ```
 
 Each `run_seed` invocation is one self-contained unit of work: one detector, its verifier,
-its fusion head and the resulting per-candidate predictions. Runs are independent, so seeds
-can be distributed across machines or sessions and merged afterwards by collecting their
-output files. The reported results are the union of 7 seeds x {ERM, PGE} plus 3 seeds of
-the DRO-style reducer, produced exactly this way.
+its fusion head and the resulting per-candidate predictions. Completed runs are skipped on
+re-invocation and trained detectors are cached on disk by training configuration, so a
+sweep can be stopped and resumed without repeating finished work. The reported results are
+7 seeds x {ERM, PGE} plus 3 seeds of the DRO-style reducer.
 
 Reproducing the full set:
 
@@ -243,9 +243,7 @@ done
 python scripts/build_report.py
 ```
 
-A completed run is skipped on re-invocation unless `--force` is passed, and trained
-detectors are cached on disk keyed by their training configuration, so an interrupted
-sweep resumes without repeating finished work.
+Pass `--force` to recompute a run that already has a report.
 
 ### Compute
 
@@ -255,7 +253,7 @@ One detector is 24 epochs at batch size 2 over 1,081 full-resolution fields.
 |---|---|
 | Time per detector | ~1.2 h on a T4, ~6.2 h on a P100 |
 | Peak GPU memory | ~7.6 GiB with gradient checkpointing |
-| Full sweep | 17 runs |
+| Full sweep | 17 runs, about 21 h on a single T4 |
 
 Training runs on full fields rather than tiles, and the bounded cross-style consistency
 term adds two further forward passes per step; without checkpointing the peak footprint is
@@ -276,12 +274,13 @@ fm_robustafb/
   data/         corpus loading, tiling, leakage audit, visual-style grouping
   detector/     FCOS-style detector, backbone, assigner, losses, post-processing
   verifier/     DINOv2 backbone, LoRA adaptation, prototype head
-  robust/       ERM, present-group equalization, Group-DRO reducers
+  robust/       reducers (ERM, present-group equalization, Group-DRO) and the
+                group-cycling + gradient-accumulation training variant
   fusion/       isotonic calibration, calibrate-then-fuse scoring head
   metrics/      detection AP, candidate calibration (C-ECE, LC-ECE), selective prediction
   engine/       training loops, tiled inference, candidate banks, evaluation,
-                activation-memory control
-  analysis/     calibration analyses, bootstrap intervals, dataset statistics
+                per-run driver, activation-memory control
+  analysis/     subgroup calibration analyses, dataset statistics, pipeline specification
   experiments/  benchmark, ablation, cross-camera, calibration, baseline studies
 configs/        YAML configurations
 scripts/        CLI entry points

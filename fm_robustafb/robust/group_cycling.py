@@ -78,7 +78,7 @@ def group_coverage(dataset, batch_size, accum_steps, num_groups, seed=0, windows
     return full / max(1, n)
 
 
-def train_dro_fixed(cfg, dataset, device, group_index, accum_steps: int = 4,
+def train_group_cycling(cfg, dataset, device, group_index, accum_steps: int = 4,
                     log_every: int = 100):
     from fm_robustafb.data.augment import CrossStyleAugment
     from fm_robustafb.data.dataset import collate_detection
@@ -128,13 +128,13 @@ def train_dro_fixed(cfg, dataset, device, group_index, accum_steps: int = 4,
     return det
 
 
-def build_or_load_dro_fixed(cfg, dataset, device, group_index, cache_dir,
+def build_or_load_group_cycling(cfg, dataset, device, group_index, cache_dir,
                             accum_steps: int = 4):
     """Cached wrapper so a killed Colab session does not lose a finished detector."""
     from fm_robustafb.detector import AFBDetector
 
     os.makedirs(cache_dir, exist_ok=True)
-    ck = os.path.join(cache_dir, f"dro_fixed_accum{accum_steps}_seed{cfg.seed}.pt")
+    ck = os.path.join(cache_dir, f"group_cycling_accum{accum_steps}_seed{cfg.seed}.pt")
     if os.path.exists(ck):
         dc = copy.deepcopy(cfg.detector)
         dc.pretrained = False
@@ -142,7 +142,7 @@ def build_or_load_dro_fixed(cfg, dataset, device, group_index, cache_dir,
         det.load_state_dict(torch.load(ck, map_location=device))
         print(f"loaded cached {os.path.basename(ck)}")
         return det
-    det = train_dro_fixed(cfg, dataset, device, group_index, accum_steps=accum_steps)
+    det = train_group_cycling(cfg, dataset, device, group_index, accum_steps=accum_steps)
     torch.save(det.state_dict(), ck)
     print(f"cached {ck}")
     return det

@@ -1,15 +1,15 @@
-from . import (exp1_benchmark, exp2_cross_camera, exp3_lobo, exp4_hard_negative,
-               exp5_calibration, exp6_ablation, exp7_label_efficiency, exp8_baseline)
+from . import (benchmark, cross_camera, lobo, hard_negative,
+               calibration, ablation, label_efficiency, baseline)
 
 REGISTRY = {
-    "benchmark": exp1_benchmark.run,
-    "cross_camera": exp2_cross_camera.run,
-    "lobo": exp3_lobo.run,
-    "hard_negative": exp4_hard_negative.run,
-    "calibration": exp5_calibration.run,
-    "ablation": exp6_ablation.run,
-    "label_efficiency": exp7_label_efficiency.run,
-    "baseline": exp8_baseline.run,
+    "benchmark": benchmark.run,
+    "cross_camera": cross_camera.run,
+    "lobo": lobo.run,
+    "hard_negative": hard_negative.run,
+    "calibration": calibration.run,
+    "ablation": ablation.run,
+    "label_efficiency": label_efficiency.run,
+    "baseline": baseline.run,
 }
 
 __all__ = ["REGISTRY"]
