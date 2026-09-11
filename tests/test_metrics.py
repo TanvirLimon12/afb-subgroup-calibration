@@ -1,7 +1,7 @@
 import numpy as np
 
-from fm_robustafb.fusion.calibration import TemperatureScaler
-from fm_robustafb.metrics import (aurc, average_precision, detection_ece, evaluate_detection,
+from afb_calibration.fusion.calibration import TemperatureScaler
+from afb_calibration.metrics import (aurc, average_precision, detection_ece, evaluate_detection,
                                   failure_auroc_auprc, localization_aware_ece, lrp_error,
                                   match_detections, risk_coverage_curve)
 
@@ -70,7 +70,7 @@ def test_temperature_scaler_reduces_nll():
 def test_plot_detection_overlay_writes_png(tmp_path):
     """The TP/FP/FN overlay must render a real PNG — the Figure-1 generator."""
     import os
-    from fm_robustafb.metrics import plot_detection_overlay
+    from afb_calibration.metrics import plot_detection_overlay
     img = np.random.randint(40, 200, (200, 200, 3), dtype=np.uint8)
     boxes = np.array([[20, 20, 60, 60], [100, 100, 140, 140]], dtype=float)
     scores = np.array([0.9, 0.4])
@@ -83,7 +83,7 @@ def test_plot_detection_overlay_writes_png(tmp_path):
 def test_plot_failure_cases_writes_png(tmp_path):
     """The failure-case panel must render a real PNG — the differentiator figure."""
     import os
-    from fm_robustafb.metrics import plot_failure_cases
+    from afb_calibration.metrics import plot_failure_cases
     img = np.random.randint(40, 200, (200, 200, 3), dtype=np.uint8)
     imgs = [img, img]
     ab = [np.array([[20., 20, 60, 60]]), np.array([[100., 100, 140, 140]])]

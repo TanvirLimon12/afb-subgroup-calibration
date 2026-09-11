@@ -7,6 +7,7 @@ Emits JSON plus a LaTeX-ready paragraph.
 from __future__ import annotations
 
 import inspect
+import os
 import json
 
 
@@ -83,18 +84,21 @@ def fusion_spec(cfg):
 def source_of_truth():
     """Source locations of the functions that implement the specification above, so the
     reported configuration can be checked against the code."""
-    # `fm_robustafb.engine` re-exports a *function* named train_verifier, which shadows
+    # `afb_calibration.engine` re-exports a *function* named train_verifier, which shadows
     # the module of the same name under `from ... import`. Import the modules explicitly.
     import importlib
-    tv = importlib.import_module("fm_robustafb.engine.train_verifier")
-    fs = importlib.import_module("fm_robustafb.engine.fusion_stage")
+    tv = importlib.import_module("afb_calibration.engine.train_verifier")
+    fs = importlib.import_module("afb_calibration.engine.fusion_stage")
     out = {}
     for name, fn in [("build_candidate_bank", tv.build_candidate_bank),
                      ("train_verifier", tv.train_verifier),
                      ("fit_fusion", fs.fit_fusion),
                      ("apply_fusion", fs.apply_fusion)]:
         try:
-            out[name] = {"file": inspect.getsourcefile(fn),
+            # repository-relative, so the record does not leak a local filesystem path
+            src = inspect.getsourcefile(fn) or ""
+            root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            out[name] = {"file": os.path.relpath(src, root) if src else None,
                          "lines": inspect.getsourcelines(fn)[1]}
         except Exception as e:
             out[name] = {"error": str(e)}

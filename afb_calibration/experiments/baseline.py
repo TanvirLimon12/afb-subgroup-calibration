@@ -3,7 +3,7 @@
 Provides an external state-of-the-art comparison alongside internal ablations. This runs a
 standard Faster R-CNN ResNet-50 FPN (matching Rulaningtyas et al. 2026, P43 — the
 closest AFB competitor) through the SAME tiled-inference + evaluate_detection path
-as the FM-RobustAFB rows, producing a directly comparable worst-group AP@0.5 row.
+as the AFB Subgroup Calibration rows, producing a directly comparable worst-group AP@0.5 row.
 
 The baseline trains via torchvision's own loss (the adapter forwards
 net(images, targets)); group-robust methods do not apply (it is a plain ERM

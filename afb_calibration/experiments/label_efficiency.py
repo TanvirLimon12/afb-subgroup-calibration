@@ -14,7 +14,7 @@ from .common import clone_config
 
 def run(cfg: Config, fractions=(0.1, 0.25, 0.5, 1.0), max_images=None,
         verifier_epochs: int = 5) -> dict:
-    curve = {"from_scratch": {}, "full_fm_robustafb": {}}
+    curve = {"from_scratch": {}, "full_afb_calibration": {}}
     for frac in fractions:
         base = run_pipeline(clone_config(cfg), use_verifier=False, use_fusion=False,
                             max_images=max_images, train_image_fraction=frac)
@@ -24,6 +24,6 @@ def run(cfg: Config, fractions=(0.1, 0.25, 0.5, 1.0), max_images=None,
         full = run_pipeline(clone_config(cfg), use_verifier=True, use_fusion=True,
                             max_images=max_images, train_image_fraction=frac,
                             verifier_epochs=verifier_epochs)
-        curve["full_fm_robustafb"][frac] = full.report["detection"].get(
+        curve["full_afb_calibration"][frac] = full.report["detection"].get(
             "worst_group_AP50", full.report["detection"].get("AP50"))
     return {"label_efficiency_curve": curve}

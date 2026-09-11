@@ -8,10 +8,10 @@ from __future__ import annotations
 import argparse
 import time
 
-from fm_robustafb.config import load_config
-from fm_robustafb.engine import run_pipeline
-from fm_robustafb.engine.pipeline import save_report
-from fm_robustafb.utils.logging import get_logger
+from afb_calibration.config import load_config
+from afb_calibration.engine import run_pipeline
+from afb_calibration.engine.pipeline import save_report
+from afb_calibration.utils.logging import get_logger
 
 logger = get_logger("run_main")
 

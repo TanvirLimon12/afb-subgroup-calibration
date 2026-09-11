@@ -1,7 +1,7 @@
 import copy
 
-from fm_robustafb.data.audit import run_audit
-from fm_robustafb.engine import run_pipeline
+from afb_calibration.data.audit import run_audit
+from afb_calibration.engine import run_pipeline
 
 
 def test_audit_runs(smoke_config):

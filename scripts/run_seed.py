@@ -43,8 +43,8 @@ def main(argv=None):
     ap.add_argument("--force", action="store_true", help="recompute even if a report exists")
     a = ap.parse_args(argv)
 
-    from fm_robustafb.engine import runner
-    from fm_robustafb.config import load_config
+    from afb_calibration.engine import runner
+    from afb_calibration.config import load_config
 
     data_root = a.data_root or load_config(a.config, []).data.root
     for sub in ("runs", "predictions", "analysis"):

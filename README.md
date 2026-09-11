@@ -1,4 +1,4 @@
-# FM-RobustAFB
+# AFB Subgroup Calibration
 
 ### Towards Trustworthy Tuberculosis Detection: Subgroup Calibration of Object Detectors in Sputum-Smear Microscopy
 
@@ -256,7 +256,7 @@ camera (ARI 0.00005).
 ## Installation
 
 ```bash
-git clone <repository-url> && cd FM-RobustAFB
+git clone <repository-url> && cd AFB Subgroup Calibration
 python -m venv .venv && source .venv/bin/activate
 pip install -e .
 ```
@@ -326,7 +326,7 @@ builds ship no compatible kernels and every CUDA operation fails with
 ## Repository layout
 
 ```
-fm_robustafb/
+afb_calibration/
   data/         corpus loading, tiling, leakage audit, visual-style grouping
   detector/     FCOS-style detector, backbone, assigner, losses, post-processing
   verifier/     DINOv2 backbone, LoRA adaptation, prototype head

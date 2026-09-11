@@ -6,14 +6,14 @@ import sys
 _CONFIGURED = False
 
 
-def get_logger(name: str = "fm_robustafb") -> logging.Logger:
+def get_logger(name: str = "afb_calibration") -> logging.Logger:
     global _CONFIGURED
     if not _CONFIGURED:
         handler = logging.StreamHandler(sys.stdout)
         handler.setFormatter(
             logging.Formatter("[%(asctime)s] %(levelname)s %(name)s: %(message)s", "%H:%M:%S")
         )
-        root = logging.getLogger("fm_robustafb")
+        root = logging.getLogger("afb_calibration")
         root.addHandler(handler)
         root.setLevel(logging.INFO)
         root.propagate = False

@@ -9,7 +9,7 @@ The table answers four literature-grounded questions:
     vs dino_verifier_only; AnomalyDINO P56 / Khan P57 lineage)
   - Which group-robust method is best for tiny-object detection? (group_balanced vs
     group_dro vs last_layer_retrain; P15 vs P16/P39 vs P55)
-  - Does calibrated fusion close the worst-group reliability gap? (full_fm_robustafb)
+  - Does calibrated fusion close the worst-group reliability gap? (full_afb_calibration)
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ VARIANTS = {
     "group_dro": ("group_dro", False, False, None),
     "last_layer_retrain": ("last_layer_retrain", False, False, None),  # LLR (P55)
     "dino_plus_best_group": ("group_balanced", True, True, "linear"),
-    "full_fm_robustafb": ("group_balanced", True, True, "linear"),
+    "full_afb_calibration": ("group_balanced", True, True, "linear"),
 }
 
 
@@ -38,7 +38,7 @@ def run(cfg: Config, max_images=None, verifier_epochs: int = 5, train_image_frac
         if head_override is not None:
             c.verifier.head = head_override
         # Only the full row enables the calibrated-fusion column.
-        enable_cal = name in ("full_fm_robustafb", "dino_plus_best_group", "dino_verifier_only",
+        enable_cal = name in ("full_afb_calibration", "dino_plus_best_group", "dino_verifier_only",
                               "nn_verifier_only")
         art = run_pipeline(c, use_verifier=use_v, use_fusion=use_f and enable_cal,
                            max_images=max_images, verifier_epochs=verifier_epochs,

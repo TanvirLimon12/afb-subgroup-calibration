@@ -4,8 +4,8 @@ from __future__ import annotations
 import argparse
 import json
 
-from fm_robustafb.config import load_config
-from fm_robustafb.data.audit import run_audit
+from afb_calibration.config import load_config
+from afb_calibration.data.audit import run_audit
 
 
 def main() -> None:

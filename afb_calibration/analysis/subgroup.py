@@ -1,7 +1,7 @@
 """Calibration analyses computed off the per-candidate dumps. CPU only, seconds to run.
 
 Metric implementations are byte-for-byte equivalent to
-``fm_robustafb.metrics.calibration`` so numbers here are comparable to the paper's.
+``afb_calibration.metrics.calibration`` so numbers here are comparable to the paper's.
 """
 from __future__ import annotations
 

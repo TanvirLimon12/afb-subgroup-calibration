@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from fm_robustafb.data.znsm import _microscope_of, convert_znsm, extract_boxes
+from afb_calibration.data.znsm import _microscope_of, convert_znsm, extract_boxes
 
 
 def _draw_annotated(path, size=(600, 800)):

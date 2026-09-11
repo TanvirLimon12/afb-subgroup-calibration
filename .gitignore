@@ -1,6 +1,6 @@
 # Corpus and trained weights are not distributed with the code.
 # Leading slashes anchor these to the repository root so they cannot match
-# fm_robustafb/data/ or results/runs/.
+# afb_calibration/data/ or results/runs/.
 /Datasets/
 /data/
 /runs/

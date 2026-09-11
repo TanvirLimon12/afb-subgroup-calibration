@@ -10,9 +10,9 @@ from __future__ import annotations
 import argparse
 import json
 
-from fm_robustafb.config import load_config
-from fm_robustafb.data.grouping import assign_style_groups, group_sizes
-from fm_robustafb.data.leakage import cross_split_leakage, remove_cross_split_leaks
+from afb_calibration.config import load_config
+from afb_calibration.data.grouping import assign_style_groups, group_sizes
+from afb_calibration.data.leakage import cross_split_leakage, remove_cross_split_leaks
 
 
 def main() -> None:

@@ -6,9 +6,9 @@ from pathlib import Path
 
 import torch
 
-from fm_robustafb.config import load_config
-from fm_robustafb.engine import run_pipeline
-from fm_robustafb.engine.pipeline import save_report
+from afb_calibration.config import load_config
+from afb_calibration.engine import run_pipeline
+from afb_calibration.engine.pipeline import save_report
 
 
 def main() -> None:

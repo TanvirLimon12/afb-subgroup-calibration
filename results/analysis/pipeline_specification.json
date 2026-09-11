@@ -67,19 +67,19 @@
   },
   "code_locations": {
     "build_candidate_bank": {
-      "file": "/Users/shorna/Projects/FM-RobustAFB/fm_robustafb/engine/train_verifier.py",
+      "file": "afb_calibration/engine/train_verifier.py",
       "lines": 58
     },
     "train_verifier": {
-      "file": "/Users/shorna/Projects/FM-RobustAFB/fm_robustafb/engine/train_verifier.py",
+      "file": "afb_calibration/engine/train_verifier.py",
       "lines": 96
     },
     "fit_fusion": {
-      "file": "/Users/shorna/Projects/FM-RobustAFB/fm_robustafb/engine/fusion_stage.py",
+      "file": "afb_calibration/engine/fusion_stage.py",
       "lines": 19
     },
     "apply_fusion": {
-      "file": "/Users/shorna/Projects/FM-RobustAFB/fm_robustafb/engine/fusion_stage.py",
+      "file": "afb_calibration/engine/fusion_stage.py",
       "lines": 29
     }
   }

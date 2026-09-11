@@ -1,7 +1,7 @@
 import pytest
 
-from fm_robustafb.config import load_config
-from fm_robustafb.data.synthetic import generate_dataset
+from afb_calibration.config import load_config
+from afb_calibration.data.synthetic import generate_dataset
 
 
 @pytest.fixture(scope="session")

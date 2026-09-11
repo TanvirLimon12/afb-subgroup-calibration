@@ -3,10 +3,10 @@ import shutil
 
 import numpy as np
 
-from fm_robustafb.data.grouping import assign_style_groups, group_sizes
-from fm_robustafb.data.leakage import cross_split_leakage, remove_cross_split_leaks
-from fm_robustafb.experiments.common import aggregate_runs, report_to_markdown
-from fm_robustafb.metrics.plots import plot_reliability, plot_risk_coverage
+from afb_calibration.data.grouping import assign_style_groups, group_sizes
+from afb_calibration.data.leakage import cross_split_leakage, remove_cross_split_leaks
+from afb_calibration.experiments.common import aggregate_runs, report_to_markdown
+from afb_calibration.metrics.plots import plot_reliability, plot_risk_coverage
 
 
 def _ann(ds):

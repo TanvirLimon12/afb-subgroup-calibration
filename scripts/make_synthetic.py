@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import argparse
 
-from fm_robustafb.data.synthetic import generate_dataset
+from afb_calibration.data.synthetic import generate_dataset
 
 
 def main() -> None:

@@ -6,11 +6,11 @@ silently recur without a guard. Keep these fast (CPU, tiny tensors).
 import numpy as np
 import torch
 
-from fm_robustafb.utils.boxes import expand_boxes
-from fm_robustafb.verifier.verifier import extract_crops
-from fm_robustafb.robust.reducers import GroupDROReducer
-from fm_robustafb.fusion.fuse import CalibrateThenFuse, _sanitize_logits
-from fm_robustafb.verifier.prototypes import NNMemoryHead, build_head
+from afb_calibration.utils.boxes import expand_boxes
+from afb_calibration.verifier.verifier import extract_crops
+from afb_calibration.robust.reducers import GroupDROReducer
+from afb_calibration.fusion.fuse import CalibrateThenFuse, _sanitize_logits
+from afb_calibration.verifier.prototypes import NNMemoryHead, build_head
 
 
 # --- ZNSM 0-height crash (reducers.py / verifier.py) ------------------------
@@ -144,7 +144,7 @@ def test_nn_head_empty_bank_emits_neutral():
 # --- DINOv2 loader: offline_stub behaviour ----------------------------------
 
 def test_build_dino_stub_returns_stub():
-    from fm_robustafb.verifier.dino import build_dino
+    from afb_calibration.verifier.dino import build_dino
     model = build_dino(offline_stub=True)
     # The stub exposes the DINOv2 interface but is not a real checkpoint.
     assert hasattr(model, "get_intermediate_layers")
@@ -155,7 +155,7 @@ def test_build_dino_real_raises_on_hub_failure(monkeypatch):
     """When offline_stub=False and the hub load fails, build_dino must RAISE —
     not silently fall back to the stub. This is the fix that prevents a full run
     from looking valid while containing no real DINOv2."""
-    from fm_robustafb.verifier import dino as dino_mod
+    from afb_calibration.verifier import dino as dino_mod
 
     def _boom(*a, **k):
         raise ConnectionError("simulated network failure")
@@ -174,8 +174,8 @@ def test_build_dino_real_raises_on_hub_failure(monkeypatch):
 def test_llr_reducer_builds_and_balances():
     """The LLR reducer (last_layer_retrain) must build via build_reducer and
     produce group-balanced reweighting (its in-batch behavior)."""
-    from fm_robustafb.robust.reducers import build_reducer, LastLayerRetrainingReducer
-    from fm_robustafb.config import RobustConfig
+    from afb_calibration.robust.reducers import build_reducer, LastLayerRetrainingReducer
+    from afb_calibration.config import RobustConfig
     r = build_reducer(RobustConfig(method="last_layer_retrain"), num_groups=3)
     assert isinstance(r, LastLayerRetrainingReducer)
     # Unequal group sizes -> weights must up-weight the minority group
@@ -188,8 +188,8 @@ def test_llr_reducer_builds_and_balances():
 
 
 def test_build_reducer_rejects_unknown_method():
-    from fm_robustafb.robust.reducers import build_reducer
-    from fm_robustafb.config import RobustConfig
+    from afb_calibration.robust.reducers import build_reducer
+    from afb_calibration.config import RobustConfig
     try:
         build_reducer(RobustConfig(method="bogus"), num_groups=2)
         assert False, "should have raised"
@@ -202,8 +202,8 @@ def test_build_reducer_rejects_unknown_method():
 def test_evaluate_calibration_emits_laece():
     """evaluate_calibration must report LaECE (Kuzucu ECCV 2024, P54) when IoUs
     are present in fusion_out — not just D-ECE."""
-    from fm_robustafb.engine.evaluate import evaluate_calibration
-    from fm_robustafb.config import Config
+    from afb_calibration.engine.evaluate import evaluate_calibration
+    from afb_calibration.config import Config
     cfg = Config()
     fusion_out = {
         "fused": np.array([0.9, 0.8, 0.4, 0.7, 0.3, 0.6, 0.85, 0.35, 0.75, 0.25, 0.65, 0.45]),

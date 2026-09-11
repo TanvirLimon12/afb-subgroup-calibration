@@ -1,11 +1,11 @@
 import numpy as np
 import torch
 
-from fm_robustafb.config import DetectorConfig, RobustConfig, VerifierConfig
-from fm_robustafb.detector import AFBDetector
-from fm_robustafb.robust import build_reducer
-from fm_robustafb.segmentation import dice, mask_morphology
-from fm_robustafb.verifier import DINOVerifier
+from afb_calibration.config import DetectorConfig, RobustConfig, VerifierConfig
+from afb_calibration.detector import AFBDetector
+from afb_calibration.robust import build_reducer
+from afb_calibration.segmentation import dice, mask_morphology
+from afb_calibration.verifier import DINOVerifier
 
 
 def test_detector_forward_and_backward():
@@ -24,7 +24,7 @@ def test_detector_has_p2_level():
 
 
 def test_extract_crops_handles_degenerate_boxes():
-    from fm_robustafb.verifier.verifier import extract_crops
+    from afb_calibration.verifier.verifier import extract_crops
     img = torch.rand(3, 60, 80)
     # zero-height box, edge box, and out-of-range box
     boxes = torch.tensor([[10, 20, 30, 20.0], [79, 59, 90, 70], [0, 0, 1, 1.0]])

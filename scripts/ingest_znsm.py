@@ -4,7 +4,7 @@ Point --images-root at the extracted ZNSM corpus (folders named
 <Category>_Microscope-<N>_set<M>). Box annotations are recovered from drawn
 shapes for the clean-outline categories (Mannual_Seg micro1, Mannual micro2);
 micro3 Mannual uses filled masks that cannot be cleanly recovered and is treated
-as background. See fm_robustafb.data.znsm for the recovery details.
+as background. See afb_calibration.data.znsm for the recovery details.
 
 Modes:
   annotated-only (default): keep only images with recovered boxes (~500 images).
@@ -19,7 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 
-from fm_robustafb.data.znsm import convert_znsm
+from afb_calibration.data.znsm import convert_znsm
 
 
 def main() -> None:

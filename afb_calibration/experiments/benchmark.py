@@ -16,7 +16,7 @@ VARIANTS = {
     "detector_erm": {"robust.method": "erm", "use_verifier": False},
     "detector_group_balanced": {"robust.method": "group_balanced", "use_verifier": False},
     "detector_group_dro": {"robust.method": "group_dro", "use_verifier": False},
-    "full_fm_robustafb": {"robust.method": "group_balanced", "use_verifier": True},
+    "full_afb_calibration": {"robust.method": "group_balanced", "use_verifier": True},
 }
 
 

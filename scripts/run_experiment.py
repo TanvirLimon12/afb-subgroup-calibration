@@ -4,10 +4,10 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from fm_robustafb.config import load_config
-from fm_robustafb.engine.pipeline import save_report
-from fm_robustafb.experiments import REGISTRY
-from fm_robustafb.experiments.common import aggregate_runs, clone_config, report_to_markdown
+from afb_calibration.config import load_config
+from afb_calibration.engine.pipeline import save_report
+from afb_calibration.experiments import REGISTRY
+from afb_calibration.experiments.common import aggregate_runs, clone_config, report_to_markdown
 
 
 def main() -> None:

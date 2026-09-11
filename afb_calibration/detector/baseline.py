@@ -4,7 +4,7 @@ Provides an external state-of-the-art comparison alongside internal ablations. T
 wrap off-the-shelf detectors behind the ``AFBDetector`` interface so they share the
 same tiled-inference, evaluation, and group-robust training path as the specialist
 detector. A baseline that runs through ``tiled_inference`` + ``evaluate_detection``
-is directly comparable to the FM-RobustAFB rows in the ablation table.
+is directly comparable to the AFB Subgroup Calibration rows in the ablation table.
 
 The closest published AFB competitor is Faster R-CNN ResNet-50 (Rulaningtyas et al.
 2026, P43), so ``FasterRCNNBaseline`` is the primary external baseline. A YOLO-style
@@ -80,7 +80,7 @@ class FasterRCNNBaseline(_BaselineAdapter):
     """torchvision Faster R-CNN ResNet-50 FPN — the external SOTA baseline.
 
     Matches Rulaningtyas et al. 2026 (P43), the closest AFB competitor (single
-    microscope, accuracy only). Run through the same eval path as FM-RobustAFB for
+    microscope, accuracy only). Run through the same eval path as AFB Subgroup Calibration for
     a directly comparable worst-group AP row.
     """
 

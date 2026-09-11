@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from fm_robustafb.utils.boxes import box_iou, box_iou_np, expand_boxes, nms_boxes
+from afb_calibration.utils.boxes import box_iou, box_iou_np, expand_boxes, nms_boxes
 
 
 def test_box_iou_identity():

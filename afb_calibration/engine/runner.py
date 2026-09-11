@@ -3,7 +3,7 @@
 This is the Phase-2 `dump_run` from the first notebook, with the defect that killed
 `group_dro` seeds 0 and 2 fixed: a collapsed detector produces a validation candidate
 bank with a single class, which makes isotonic calibration raise, which killed the whole
-run before any artifact was written. `fm_robustafb.engine.pipeline._try_fusion` guards
+run before any artifact was written. `afb_calibration.engine.pipeline._try_fusion` guards
 against this; the original dump_run did not.
 
 Collapsed runs now emit a detection-only report with ``collapsed: true`` so the DRO row
@@ -45,7 +45,7 @@ def base_overrides(data_root: str):
 
 
 def cfg_for(method, seed, data_root, config="configs/raw_sputum.yaml", extra=()):
-    from fm_robustafb.config import load_config
+    from afb_calibration.config import load_config
     c = load_config(config, base_overrides(data_root) + list(extra))
     c.seed = seed
     c.robust.method = method
@@ -65,7 +65,7 @@ def verify_checkpoints(cache_dir, data_root, config="configs/raw_sputum.yaml", l
     Returns (n_resolved, mismatches). With link=True, mismatched keys are symlinked to
     the known filename so a drifted data.root does not trigger 10 GPU-hours of retraining.
     """
-    from fm_robustafb.engine.train_detector import _detector_cache_key
+    from afb_calibration.engine.train_detector import _detector_cache_key
     resolved, bad = 0, []
     for m in METHODS:
         for s in [0, 1, 2]:
@@ -92,13 +92,13 @@ def dump_run(method, seed, artifacts, data_root, tag=None, extra_overrides=(),
     detector: pass an already-built model to skip the cache lookup entirely (Phase 5B
     uses this for the fixed-DRO models, which live outside the standard cache).
     """
-    from fm_robustafb.engine.build import build_dataset, build_group_index
-    from fm_robustafb.engine.infer import tiled_inference
-    from fm_robustafb.engine.train_verifier import build_candidate_bank, train_verifier
-    from fm_robustafb.engine.fusion_stage import fit_fusion, apply_fusion
-    from fm_robustafb.engine.evaluate import evaluate_calibration, evaluate_detection_results
-    from fm_robustafb.engine.train_detector import train_detector
-    from fm_robustafb.utils.seed import seed_everything, resolve_device
+    from afb_calibration.engine.build import build_dataset, build_group_index
+    from afb_calibration.engine.infer import tiled_inference
+    from afb_calibration.engine.train_verifier import build_candidate_bank, train_verifier
+    from afb_calibration.engine.fusion_stage import fit_fusion, apply_fusion
+    from afb_calibration.engine.evaluate import evaluate_calibration, evaluate_detection_results
+    from afb_calibration.engine.train_detector import train_detector
+    from afb_calibration.utils.seed import seed_everything, resolve_device
 
     tag = tag or f"{method}_seed{seed}"
     cand_p = f"{artifacts}/predictions/cand_{tag}.npz"

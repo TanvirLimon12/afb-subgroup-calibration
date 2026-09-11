@@ -32,7 +32,7 @@ afb-experiment = "scripts.run_experiment:main"
 afb-run-seed = "scripts.run_seed:main"
 
 [tool.setuptools.packages.find]
-include = ["fm_robustafb*", "scripts*"]
+include = ["afb_calibration*", "scripts*"]
 
 [tool.ruff]
 line-length = 100

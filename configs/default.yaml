@@ -1,4 +1,4 @@
-# FM-RobustAFB reference configuration.
+# AFB Subgroup Calibration reference configuration.
 # Scope: AFB / bacillus-morphology detection and verification. NOT species-level
 # M. tuberculosis identification. See README scope disclaimer.
 

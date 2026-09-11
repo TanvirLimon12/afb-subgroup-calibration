@@ -106,7 +106,7 @@ def build_dino(name: str = "dinov2_vitb14_reg", offline_stub: bool = True) -> nn
             f"requires the real '{name}' checkpoint for any foundation-model claim. "
             f"Either (a) fix network/hub access and retry, or (b) explicitly accept "
             f"the stub by setting verifier.offline_stub=True — but do NOT report any "
-            f"result from a stub run as an FM-RobustAFB result."
+            f"result from a stub run as an AFB Subgroup Calibration result."
         ) from exc
     logger.info("loaded DINOv2 checkpoint: %s", name)
     return model

@@ -6,13 +6,13 @@ from pathlib import Path
 
 import torch
 
-from fm_robustafb.config import load_config
-from fm_robustafb.engine import build_dataset, build_group_index
-from fm_robustafb.engine.evaluate import evaluate_detection_results
-from fm_robustafb.engine.infer import tiled_inference
-from fm_robustafb.engine.pipeline import save_report
-from fm_robustafb.engine.train_detector import train_detector
-from fm_robustafb.utils.seed import resolve_device, seed_everything
+from afb_calibration.config import load_config
+from afb_calibration.engine import build_dataset, build_group_index
+from afb_calibration.engine.evaluate import evaluate_detection_results
+from afb_calibration.engine.infer import tiled_inference
+from afb_calibration.engine.pipeline import save_report
+from afb_calibration.engine.train_detector import train_detector
+from afb_calibration.utils.seed import resolve_device, seed_everything
 
 
 def main() -> None:

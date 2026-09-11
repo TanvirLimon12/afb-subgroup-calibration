@@ -1,6 +1,6 @@
 import torch
 
-from fm_robustafb.data.tiling import build_grid, fuse_tile_detections, tile_image
+from afb_calibration.data.tiling import build_grid, fuse_tile_detections, tile_image
 
 
 def test_grid_covers_image():

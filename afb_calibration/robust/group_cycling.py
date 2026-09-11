@@ -66,7 +66,7 @@ def group_coverage(dataset, batch_size, accum_steps, num_groups, seed=0, windows
     Run this before committing GPU hours - it is the whole point of the fix, and it
     costs nothing. The submitted setup (shuffle, batch 2, accum 1) scores near zero.
     """
-    from fm_robustafb.data.groups import compute_group_ids
+    from afb_calibration.data.groups import compute_group_ids
     gids = np.asarray(compute_group_ids(dataset))
     order = list(GroupCycleSampler(gids, seed=seed))
     per_window = batch_size * accum_steps
@@ -80,13 +80,13 @@ def group_coverage(dataset, batch_size, accum_steps, num_groups, seed=0, windows
 
 def train_group_cycling(cfg, dataset, device, group_index, accum_steps: int = 4,
                     log_every: int = 100):
-    from fm_robustafb.data.augment import CrossStyleAugment
-    from fm_robustafb.data.dataset import collate_detection
-    from fm_robustafb.data.groups import compute_group_ids
-    from fm_robustafb.detector import AFBDetector
-    from fm_robustafb.detector.detector import pad_batch
-    from fm_robustafb.engine.train_detector import _consistency
-    from fm_robustafb.robust import build_reducer
+    from afb_calibration.data.augment import CrossStyleAugment
+    from afb_calibration.data.dataset import collate_detection
+    from afb_calibration.data.groups import compute_group_ids
+    from afb_calibration.detector import AFBDetector
+    from afb_calibration.detector.detector import pad_batch
+    from afb_calibration.engine.train_detector import _consistency
+    from afb_calibration.robust import build_reducer
 
     det = AFBDetector(cfg.detector).to(device)
     reducer = build_reducer(cfg.robust, group_index.num_groups)
@@ -131,7 +131,7 @@ def train_group_cycling(cfg, dataset, device, group_index, accum_steps: int = 4,
 def build_or_load_group_cycling(cfg, dataset, device, group_index, cache_dir,
                             accum_steps: int = 4):
     """Cached wrapper so a killed Colab session does not lose a finished detector."""
-    from fm_robustafb.detector import AFBDetector
+    from afb_calibration.detector import AFBDetector
 
     os.makedirs(cache_dir, exist_ok=True)
     ck = os.path.join(cache_dir, f"group_cycling_accum{accum_steps}_seed{cfg.seed}.pt")

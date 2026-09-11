@@ -5,10 +5,10 @@ Two presets:
   --preset gpu    : CUDA/CPU with the real DINOv2 verifier and full training —
                     use this for any result you intend to report.
 
-IMPORTANT: the foundation-model contribution (the "FM" in FM-RobustAFB) is only
+IMPORTANT: the foundation-model contribution (the "FM" in AFB Subgroup Calibration) is only
 real when the verifier uses the actual DINOv2 checkpoint. A run with the offline
 stub verifier carries NO pretrained signal and must NOT be reported as an
-FM-RobustAFB result. The build_dino loader now RAISES (rather than silently
+AFB Subgroup Calibration result. The build_dino loader now RAISES (rather than silently
 falling back) when offline_stub=False and the hub load fails, so a stub result
 can never again masquerade as a real one. The MPS preset deliberately uses the
 stub (no real DINOv2 contribution) and prints a banner to that effect.
@@ -22,11 +22,11 @@ import time
 import traceback
 from pathlib import Path
 
-from fm_robustafb.config import load_config
-from fm_robustafb.experiments import REGISTRY
-from fm_robustafb.experiments.common import report_to_markdown
-from fm_robustafb.engine.pipeline import save_report
-from fm_robustafb.utils.logging import get_logger
+from afb_calibration.config import load_config
+from afb_calibration.experiments import REGISTRY
+from afb_calibration.experiments.common import report_to_markdown
+from afb_calibration.engine.pipeline import save_report
+from afb_calibration.utils.logging import get_logger
 
 logger = get_logger("run_all")
 
@@ -67,7 +67,7 @@ TASKS = [
     ("cross_camera", "configs/znsm_idb.yaml", ["detector.fpn_min_level=2"], {}),
     ("lobo", "configs/znsm_idb.yaml", ["detector.fpn_min_level=2"], {}),
     # External baseline (Faster R-CNN) for state-of-the-art comparison.
-    # Runs through the same eval path as FM-RobustAFB for a comparable row.
+    # Runs through the same eval path as AFB Subgroup Calibration for a comparable row.
     ("baseline", "configs/raw_sputum.yaml", ["detector.fpn_min_level=3"],
      {"train_image_fraction": _RS}),
 ]
@@ -111,7 +111,7 @@ def main() -> None:
         "\n" + "=" * 78 + "\n"
         + f"  SUITE PRESET: {args.preset.upper()}\n"
         + f"  Verifier: {'STUB (random init, NO pretrained signal)' if using_stub else 'REAL DINOv2 via torch.hub'}\n"
-        + ("  >>> RESULTS FROM THIS RUN ARE NOT REPORTABLE AS FM-RobustAFB <<<\n"
+        + ("  >>> RESULTS FROM THIS RUN ARE NOT REPORTABLE AS AFB Subgroup Calibration <<<\n"
            if using_stub else
            "  Results are reportable, provided the DINOv2 hub load succeeds.\n")
         + "=" * 78 + "\n"
@@ -149,7 +149,7 @@ def main() -> None:
                      + ", ".join(f"{k}={v}" for k, v in e.items()
                                  if k not in ("experiment", "status", "minutes", "variants", "error")))
     if using_stub:
-        lines += ["", "> ⚠ STUB verifier — these numbers are NOT reportable as FM-RobustAFB results. "
+        lines += ["", "> ⚠ STUB verifier — these numbers are NOT reportable as AFB Subgroup Calibration results. "
                     "Re-run with --preset gpu for the real verifier."]
     (out_dir / "SUMMARY.md").write_text("\n".join(lines) + "\n")
     logger.info("suite done; summary at %s/SUMMARY.md", out_dir)
